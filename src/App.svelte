@@ -56,6 +56,7 @@
 
   // Configura drag con d3
   onMount(() => {
+    // Drag existente
     const element = select(globe);
     element.call(
       drag()
@@ -67,15 +68,8 @@
           dragging = false;
         }),
     );
-  });
 
-  // Centrar tooltip si hay datos
-  $: if (tooltipData) {
-    const center = geoCentroid(tooltipData);
-    $rotation = -center[0];
-  }
-
-  window.addEventListener("DOMContentLoaded", (event) => {
+    // Resize iframe
     function updateIframeHeight() {
       const el = document.documentElement;
       const rect = el.getBoundingClientRect();
@@ -83,36 +77,29 @@
       const margin =
         parseFloat(styles.marginTop) + parseFloat(styles.marginBottom);
       const height = Math.ceil(rect.height + margin);
-
-      window.parent.postMessage(
-        {
-          type: "resize-iframe",
-          value: height,
-        },
-        "*",
-      );
+      window.parent.postMessage({ type: "resize-iframe", value: height }, "*");
     }
+
     updateIframeHeight();
 
     if (window.ResizeObserver) {
-      new ResizeObserver(() => {
-        updateIframeHeight();
-      }).observe(document.documentElement);
+      new ResizeObserver(() => updateIframeHeight()).observe(
+        document.documentElement,
+      );
     } else {
-      window.addEventListener("load", updateIframeHeight);
       window.addEventListener("resize", updateIframeHeight);
     }
 
-    window.addEventListener(
-      "message",
-      (event) => {
-        if (event.data.type === "request-resize") {
-          updateIframeHeight();
-        }
-      },
-      false,
-    );
+    window.addEventListener("message", (event) => {
+      if (event.data.type === "request-resize") updateIframeHeight();
+    });
   });
+
+  // Centrar tooltip si hay datos
+  $: if (tooltipData) {
+    const center = geoCentroid(tooltipData);
+    $rotation = -center[0];
+  }
 </script>
 
 <div class="chart-container" bind:clientWidth={width}>
