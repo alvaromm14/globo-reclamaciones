@@ -146,10 +146,10 @@
       <!-- Hit area invisible, mucho más fácil de clicar -->
       <path
         d={path(reclamacion)}
-        fill="transparent"
+        fill="rgba(0,0,0,0)"
         stroke="transparent"
         stroke-width="12"
-        style="pointer-events: stroke; fill: none;"
+        pointer-events="all"
         on:click|stopPropagation={() => (tooltipData = reclamacion)}
         cursor="pointer"
       />
